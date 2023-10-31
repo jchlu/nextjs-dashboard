@@ -1,7 +1,6 @@
 import SideNav from '@/app/ui/dashboard/sidenav'
-import type { Children } from '@/types'
 
-export default function Layout({ children }: Children ) {
+export default function Layout({ children }) {
   return (
     <div className="flex h-screen flex-col md:flex-row md:overflow-hidden">
       <div className="w-full flex-none md:w-64">

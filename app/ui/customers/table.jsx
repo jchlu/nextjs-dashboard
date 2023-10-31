@@ -5,8 +5,6 @@ import { CustomersTable, FormattedCustomersTable } from '@/app/lib/definitions'
 
 export default async function CustomersTable({
   customers,
-}: {
-  customers: FormattedCustomersTable[]
 }) {
   return (
     <div className="w-full">

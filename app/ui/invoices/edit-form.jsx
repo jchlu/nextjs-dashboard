@@ -1,19 +1,24 @@
 'use client'
 
-import { CustomerField } from '@/app/lib/definitions'
-import Link from 'next/link'
+import { CustomerField, InvoiceForm } from '@/app/lib/definitions'
 import {
   CheckIcon,
   ClockIcon,
   CurrencyDollarIcon,
   UserCircleIcon,
 } from '@heroicons/react/24/outline'
+import Link from 'next/link'
 import { Button } from '../button'
 
-export default function Form({ customers }: { customers: CustomerField[] }) {
+export default function EditInvoiceForm({
+  invoice,
+  customers,
+}) {
   return (
     <form>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">
+        {/* Invoice ID */}
+        <input type="hidden" name="id" value={invoice.id} />
         {/* Customer Name */}
         <div className="mb-4">
           <label htmlFor="customer" className="mb-2 block text-sm font-medium">
@@ -24,7 +29,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
               id="customer"
               name="customerId"
               className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
-              defaultValue=""
+              defaultValue={invoice.customer_id}
             >
               <option value="" disabled>
                 Select a customer
@@ -50,14 +55,13 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                 id="amount"
                 name="amount"
                 type="number"
-                step="0.01"
+                defaultValue={invoice.amount}
                 placeholder="Enter USD amount"
                 className="peer block w-full rounded-md border border-gray-200 py-2 pl-10 text-sm outline-2 placeholder:text-gray-500"
               />
               <CurrencyDollarIcon className="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
             </div>
           </div>
-          s
         </div>
 
         {/* Invoice Status */}
@@ -73,6 +77,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   name="status"
                   type="radio"
                   value="pending"
+                  defaultChecked={invoice.status === 'pending'}
                   className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-gray-600"
                 />
                 <label
@@ -88,6 +93,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
                   name="status"
                   type="radio"
                   value="paid"
+                  defaultChecked={invoice.status === 'paid'}
                   className="h-4 w-4 border-gray-300 bg-gray-100 text-gray-600 focus:ring-2 focus:ring-gray-500 dark:border-gray-600 dark:bg-gray-700 dark:ring-offset-gray-800 dark:focus:ring-gray-600"
                 />
                 <label
@@ -108,7 +114,7 @@ export default function Form({ customers }: { customers: CustomerField[] }) {
         >
           Cancel
         </Link>
-        <Button type="submit">Create Invoice</Button>
+        <Button type="submit">Edit Invoice</Button>
       </div>
     </form>
   )

@@ -1,18 +1,8 @@
 // import { sql } from '@vercel/postgres'
 
 import { createClient } from '@supabase/supabase-js'
-import { Database, Tables } from './definitions'
 // Create a single supabase client for interacting with your database
-const supabase = createClient<Database>(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '')
-import {
-  CustomerField,
-  CustomersTable,
-  InvoiceForm,
-  InvoicesTable,
-  LatestInvoiceRaw,
-  User,
-  Revenue,
-} from './definitions'
+const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '')
 import { formatCurrency } from './utils'
 
 export async function fetchRevenue() {
@@ -28,7 +18,7 @@ export async function fetchRevenue() {
 
     // const data = await sql<Revenue>`SELECT * FROM revenue`
 
-    let { data, error }: { data: Tables<'revenue'>, error: Error } = await supabase
+    let { data, error } = await supabase
       .from('revenue')
       .select('*')
 
@@ -44,7 +34,7 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
-    const data = await sql<LatestInvoiceRaw>`
+    const data = await sql`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
@@ -99,8 +89,8 @@ export async function fetchCardData() {
 
 const ITEMS_PER_PAGE = 6
 export async function fetchFilteredInvoices(
-  query: string,
-  currentPage: number
+  query,
+  currentPage
 ) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
@@ -133,7 +123,7 @@ export async function fetchFilteredInvoices(
   }
 }
 
-export async function fetchInvoicesPages(query: string) {
+export async function fetchInvoicesPages(query) {
   try {
     const count = await sql`SELECT COUNT(*)
     FROM invoices
@@ -154,9 +144,9 @@ export async function fetchInvoicesPages(query: string) {
   }
 }
 
-export async function fetchInvoiceById(id: string) {
+export async function fetchInvoiceById(id) {
   try {
-    const data = await sql<InvoiceForm>`
+    const data = await sql`
       SELECT
         invoices.id,
         invoices.customer_id,
@@ -197,7 +187,7 @@ export async function fetchCustomers() {
   }
 }
 
-export async function fetchFilteredCustomers(query: string) {
+export async function fetchFilteredCustomers(query) {
   try {
     const data = await sql<CustomersTable>`
 		SELECT
@@ -230,7 +220,7 @@ export async function fetchFilteredCustomers(query: string) {
   }
 }
 
-export async function getUser(email: string) {
+export async function getUser(email) {
   try {
     const user = await sql`SELECT * from USERS where email=${email}`
     return user.rows[0] as User
