@@ -2,8 +2,9 @@
 
 import { createClient } from '@supabase/supabase-js'
 // Create a single supabase client for interacting with your database
-const supabase = createClient(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '')
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
 import { formatCurrency } from './utils'
+import { stringify } from 'postcss'
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -34,13 +35,27 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
+
+const { data, error } = await supabase.from('invoices').select(`
+  id,
+  amount,
+  customers ( name, image_url, email )
+`).limit(5).order('date', { ascending: false })
+
+    console.log(JSON.stringify(data, null, 2))
+
+/* const { data, error } = await supabase
+  .from('invoices')
+  .select('amount, customers!inner(name), customers!inner(image_url), customers!inner(email), id')
+  .eq('customers.id', 'Indonesia')
+
     const data = await sql`
       SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       ORDER BY invoices.date DESC
       LIMIT 5`
-
+*/
     const latestInvoices = data.rows.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
@@ -51,6 +66,9 @@ export async function fetchLatestInvoices() {
     throw new Error('Failed to fetch the latest invoices.')
   }
 }
+
+
+/*
 
 export async function fetchCardData() {
   try {
@@ -228,4 +246,4 @@ export async function getUser(email) {
     console.error('Failed to fetch user:', error)
     throw new Error('Failed to fetch user.')
   }
-}
+} */
