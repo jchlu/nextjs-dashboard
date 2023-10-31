@@ -42,7 +42,7 @@ const { data, error } = await supabase.from('invoices').select(`
   customers ( name, image_url, email )
 `).limit(5).order('date', { ascending: false })
 
-    console.log(JSON.stringify(data, null, 2))
+    // console.log(JSON.stringify(data, null, 2))
 
 /* const { data, error } = await supabase
   .from('invoices')
@@ -56,7 +56,7 @@ const { data, error } = await supabase.from('invoices').select(`
       ORDER BY invoices.date DESC
       LIMIT 5`
 */
-    const latestInvoices = data.rows.map((invoice) => ({
+    const latestInvoices = data.map((invoice) => ({
       ...invoice,
       amount: formatCurrency(invoice.amount),
     }))
