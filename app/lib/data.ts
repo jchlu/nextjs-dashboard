@@ -1,4 +1,9 @@
-import { sql } from '@vercel/postgres'
+// import { sql } from '@vercel/postgres'
+
+import { createClient } from '@supabase/supabase-js'
+import { Database, Tables } from './definitions'
+// Create a single supabase client for interacting with your database
+const supabase = createClient<Database>(process.env.SUPABASE_URL || '', process.env.SUPABASE_ANON_KEY || '')
 import {
   CustomerField,
   CustomersTable,
@@ -21,11 +26,16 @@ export async function fetchRevenue() {
     // console.log('Fetching revenue data...');
     // await new Promise((resolve) => setTimeout(resolve, 3000));
 
-    const data = await sql<Revenue>`SELECT * FROM revenue`
+    // const data = await sql<Revenue>`SELECT * FROM revenue`
+
+    let { data, error }: { data: Tables<'revenue'>, error: Error } = await supabase
+      .from('revenue')
+      .select('*')
 
     // console.log('Data fetch complete after 3 seconds.');
 
-    return data.rows
+    error && null
+    return data
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch revenue data.')

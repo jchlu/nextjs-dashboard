@@ -1,3 +1,114 @@
+export type Json =
+  | string
+  | number
+  | boolean
+  | null
+  | { [key: string]: Json | undefined }
+  | Json[]
+
+export interface Database {
+  public: {
+    Tables: {
+      customers: {
+        Row: {
+          email: string
+          id: string
+          image_url: string
+          name: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          image_url: string
+          name: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          image_url?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          amount: number
+          customer_id: string
+          date: string
+          id: string
+          status: string
+        }
+        Insert: {
+          amount: number
+          customer_id: string
+          date: string
+          id?: string
+          status: string
+        }
+        Update: {
+          amount?: number
+          customer_id?: string
+          date?: string
+          id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      revenue: {
+        Row: {
+          month: string
+          revenue: number
+        }
+        Insert: {
+          month: string
+          revenue: number
+        }
+        Update: {
+          month?: string
+          revenue?: number
+        }
+        Relationships: []
+      }
+      users: {
+        Row: {
+          email: string
+          id: string
+          name: string
+          password: string
+        }
+        Insert: {
+          email: string
+          id?: string
+          name: string
+          password: string
+        }
+        Update: {
+          email?: string
+          id?: string
+          name?: string
+          password?: string
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row']
+
+
 // This file contains type definitions for your data.
 // It describes the shape of the data, and what data type each property should accept.
 // For simplicity of teaching, we're manually defining these types.
