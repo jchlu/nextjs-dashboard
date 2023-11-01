@@ -5,10 +5,7 @@ export const formatCurrency = (amount) => {
   })
 }
 
-export const formatDateToLocal = (
-  dateStr,
-  locale = 'en-US'
-) => {
+export const formatDateToLocal = (dateStr, locale = 'en-US') => {
   const date = new Date(dateStr)
   const options = {
     day: 'numeric',

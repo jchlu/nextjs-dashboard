@@ -61,7 +61,7 @@ export async function fetchCardData() {
   try {
     let { data, error } = await supabase.from('v_invoicestatus').select('*')
 
-    const {customerCount, invoiceCount, paid, pending } = data[0]
+    const { customerCount, invoiceCount, paid, pending } = data[0]
     const numberOfInvoices = Number(invoiceCount ?? '0')
     const numberOfCustomers = Number(customerCount ?? '0')
     const totalPaidInvoices = formatCurrency(paid ?? '0')

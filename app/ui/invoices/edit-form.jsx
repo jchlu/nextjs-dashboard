@@ -9,10 +9,7 @@ import {
 import Link from 'next/link'
 import { Button } from '../button'
 
-export default function EditInvoiceForm({
-  invoice,
-  customers,
-}) {
+export default function EditInvoiceForm({ invoice, customers }) {
   return (
     <form>
       <div className="rounded-md bg-gray-50 p-4 md:p-6">

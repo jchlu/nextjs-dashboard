@@ -2,9 +2,7 @@ import Image from 'next/image'
 import { lusitana } from '@/app/ui/fonts'
 import Search from '../search'
 
-export default async function CustomersTable({
-  customers,
-}) {
+export default async function CustomersTable({ customers }) {
   return (
     <div className="w-full">
       <h1 className={`${lusitana.className} mb-8 text-xl md:text-2xl`}>
