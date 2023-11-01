@@ -2,9 +2,11 @@
 
 import { createClient } from '@supabase/supabase-js'
 // Create a single supabase client for interacting with your database
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY)
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_ANON_KEY
+)
 import { formatCurrency } from './utils'
-import { stringify } from 'postcss'
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -19,14 +21,10 @@ export async function fetchRevenue() {
 
     // const data = await sql<Revenue>`SELECT * FROM revenue`
 
-    let { data, error } = await supabase
-      .from('revenue')
-      .select('*')
+    let { data: revenue, error } = await supabase.from('revenue').select('*')
 
     // console.log('Data fetch complete after 3 seconds.');
-
-    error && null
-    return data
+    return revenue
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch revenue data.')
@@ -35,29 +33,19 @@ export async function fetchRevenue() {
 
 export async function fetchLatestInvoices() {
   try {
+    let { data: invoices, error } = await supabase
+      .from('invoices')
+      .select(`
+	id,
+	amount,
+	customers ( name, image_url, email )
+	`)
+      .limit(5)
+      .order('date', { ascending: false })
 
-const { data, error } = await supabase.from('invoices').select(`
-  id,
-  amount,
-  customers ( name, image_url, email )
-`).limit(5).order('date', { ascending: false })
-
-    // console.log(JSON.stringify(data, null, 2))
-
-/* const { data, error } = await supabase
-  .from('invoices')
-  .select('amount, customers!inner(name), customers!inner(image_url), customers!inner(email), id')
-  .eq('customers.id', 'Indonesia')
-
-    const data = await sql`
-      SELECT invoices.amount, customers.name, customers.image_url, customers.email, invoices.id
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      ORDER BY invoices.date DESC
-      LIMIT 5`
-*/
-    const latestInvoices = data.map((invoice) => ({
-      ...invoice,
+    const latestInvoices = invoices.map((invoice) => ({
+      ...invoice.customers,
+      id: invoice.id ,
       amount: formatCurrency(invoice.amount),
     }))
     return latestInvoices
@@ -66,7 +54,6 @@ const { data, error } = await supabase.from('invoices').select(`
     throw new Error('Failed to fetch the latest invoices.')
   }
 }
-
 
 /*
 
@@ -78,9 +65,9 @@ export async function fetchCardData() {
     const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`
     const customerCountPromise = sql`SELECT COUNT(*) FROM customers`
     const invoiceStatusPromise = sql`SELECT
-         SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-         SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-         FROM invoices`
+	 SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
+	 SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
+	 FROM invoices`
 
     const data = await Promise.all([
       invoiceCountPromise,
@@ -115,21 +102,21 @@ export async function fetchFilteredInvoices(
   try {
     const invoices = await sql<InvoicesTable>`
       SELECT
-        invoices.id,
-        invoices.amount,
-        invoices.date,
-        invoices.status,
-        customers.name,
-        customers.email,
-        customers.image_url
+	invoices.id,
+	invoices.amount,
+	invoices.date,
+	invoices.status,
+	customers.name,
+	customers.email,
+	customers.image_url
       FROM invoices
       JOIN customers ON invoices.customer_id = customers.id
       WHERE
-        customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`} OR
-        invoices.amount::text ILIKE ${`%${query}%`} OR
-        invoices.date::text ILIKE ${`%${query}%`} OR
-        invoices.status ILIKE ${`%${query}%`}
+	customers.name ILIKE ${`%${query}%`} OR
+	customers.email ILIKE ${`%${query}%`} OR
+	invoices.amount::text ILIKE ${`%${query}%`} OR
+	invoices.date::text ILIKE ${`%${query}%`} OR
+	invoices.status ILIKE ${`%${query}%`}
       ORDER BY invoices.date DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `
@@ -166,10 +153,10 @@ export async function fetchInvoiceById(id) {
   try {
     const data = await sql`
       SELECT
-        invoices.id,
-        invoices.customer_id,
-        invoices.amount,
-        invoices.status
+	invoices.id,
+	invoices.customer_id,
+	invoices.amount,
+	invoices.status
       FROM invoices
       WHERE invoices.id = ${id};
     `
@@ -191,8 +178,8 @@ export async function fetchCustomers() {
   try {
     const data = await sql<CustomerField>`
       SELECT
-        id,
-        name
+	id,
+	name
       FROM customers
       ORDER BY name ASC
     `
@@ -220,7 +207,7 @@ export async function fetchFilteredCustomers(query) {
 		LEFT JOIN invoices ON customers.id = invoices.customer_id
 		WHERE
 		  customers.name ILIKE ${`%${query}%`} OR
-        customers.email ILIKE ${`%${query}%`}
+	customers.email ILIKE ${`%${query}%`}
 		GROUP BY customers.id, customers.name, customers.email, customers.image_url
 		ORDER BY customers.name ASC
 	  `
