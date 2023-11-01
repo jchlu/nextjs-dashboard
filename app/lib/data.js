@@ -5,6 +5,8 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 )
 import { formatCurrency } from './utils'
+import { stringify } from 'postcss'
+import { invoices } from './placeholder-data'
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
@@ -33,17 +35,19 @@ export async function fetchLatestInvoices() {
   try {
     let { data: invoices, error } = await supabase
       .from('invoices')
-      .select(`
+      .select(
+        `
 	id,
 	amount,
 	customers ( name, image_url, email )
-	`)
+	`
+      )
       .limit(5)
       .order('date', { ascending: false })
 
     const latestInvoices = invoices.map((invoice) => ({
       ...invoice.customers,
-      id: invoice.id ,
+      id: invoice.id,
       amount: formatCurrency(invoice.amount),
     }))
     return latestInvoices
@@ -53,30 +57,15 @@ export async function fetchLatestInvoices() {
   }
 }
 
-/*
-
 export async function fetchCardData() {
   try {
-    // You can probably combine these into a single SQL query
-    // However, we are intentionally splitting them to demonstrate
-    // how to initialize multiple queries in parallel with JS.
-    const invoiceCountPromise = sql`SELECT COUNT(*) FROM invoices`
-    const customerCountPromise = sql`SELECT COUNT(*) FROM customers`
-    const invoiceStatusPromise = sql`SELECT
-	 SUM(CASE WHEN status = 'paid' THEN amount ELSE 0 END) AS "paid",
-	 SUM(CASE WHEN status = 'pending' THEN amount ELSE 0 END) AS "pending"
-	 FROM invoices`
+    let { data, error } = await supabase.from('v_invoicestatus').select('*')
 
-    const data = await Promise.all([
-      invoiceCountPromise,
-      customerCountPromise,
-      invoiceStatusPromise,
-    ])
-
-    const numberOfInvoices = Number(data[0].rows[0].count ?? '0')
-    const numberOfCustomers = Number(data[1].rows[0].count ?? '0')
-    const totalPaidInvoices = formatCurrency(data[2].rows[0].paid ?? '0')
-    const totalPendingInvoices = formatCurrency(data[2].rows[0].pending ?? '0')
+    const {customerCount, invoiceCount, paid, pending } = data
+    const numberOfInvoices = Number(invoiceCount ?? '0')
+    const numberOfCustomers = Number(customerCount ?? '0')
+    const totalPaidInvoices = formatCurrency(paid ?? '0')
+    const totalPendingInvoices = formatCurrency(pending ?? '0')
 
     return {
       numberOfCustomers,
@@ -89,7 +78,7 @@ export async function fetchCardData() {
     throw new Error('Failed to card data.')
   }
 }
-
+/*
 const ITEMS_PER_PAGE = 6
 export async function fetchFilteredInvoices(
   query,
