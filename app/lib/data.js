@@ -5,8 +5,7 @@ const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 )
 import { formatCurrency } from './utils'
-import { stringify } from 'postcss'
-import { invoices } from './placeholder-data'
+// import { invoices } from './placeholder-data'
 
 export async function fetchRevenue() {
   // Add noStore() here prevent the response from being cached.
