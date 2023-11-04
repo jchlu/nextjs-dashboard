@@ -68,15 +68,31 @@ export async function fetchCardData() {
     throw new Error('Failed to card data.')
   }
 }
-/*
 const ITEMS_PER_PAGE = 6
-export async function fetchFilteredInvoices(
-  query,
-  currentPage
-) {
+export async function fetchFilteredInvoices(query, currentPage) {
   const offset = (currentPage - 1) * ITEMS_PER_PAGE
 
   try {
+    let { data: invoices, error } = await supabase
+      .from('invoices')
+      .select(
+        `
+    id,
+    amount,
+    date,
+    status,
+    customers!inner (
+      name,
+      email,
+      image_url
+    )
+  `
+      )
+      .or(
+        `name.ilike.%${query}%,email.ilike.%${query}%`,
+        { foreignTable: 'customers' }
+      )
+    /*
     const invoices = await sql<InvoicesTable>`
       SELECT
 	invoices.id,
@@ -97,14 +113,15 @@ export async function fetchFilteredInvoices(
       ORDER BY invoices.date DESC
       LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
     `
-
-    return invoices.rows
+*/
+    console.log(`Invoice data: ${JSON.stringify(invoices, null, 2)}`)
+    return invoices
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch invoices.')
   }
 }
-
+/*
 export async function fetchInvoicesPages(query) {
   try {
     const count = await sql`SELECT COUNT(*)
