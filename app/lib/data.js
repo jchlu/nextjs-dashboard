@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+
 // Create a single supabase client for interacting with your database
 const supabase = createClient(
   process.env.SUPABASE_URL,
@@ -70,50 +71,17 @@ export async function fetchCardData() {
 }
 const ITEMS_PER_PAGE = 6
 export async function fetchFilteredInvoices(query, currentPage) {
-  const offset = (currentPage - 1) * ITEMS_PER_PAGE
-
+  const rangeStart = (currentPage - 1) * ITEMS_PER_PAGE
+  const rangeEnd = rangeStart + ITEMS_PER_PAGE
+  console.log(`rangeStart: ${rangeStart}, rangeEnd: ${rangeEnd}`)
   try {
     let { data: invoices, error } = await supabase
-      .from('invoices')
-      .select(
-        `
-    id,
-    amount,
-    date,
-    status,
-    customers!inner (
-      name,
-      email,
-      image_url
-    )
-  `
-      )
-      .or(
-        `name.ilike.%${query}%,email.ilike.%${query}%`,
-        { foreignTable: 'customers' }
-      )
-    /*
-    const invoices = await sql<InvoicesTable>`
-      SELECT
-	invoices.id,
-	invoices.amount,
-	invoices.date,
-	invoices.status,
-	customers.name,
-	customers.email,
-	customers.image_url
-      FROM invoices
-      JOIN customers ON invoices.customer_id = customers.id
-      WHERE
-	customers.name ILIKE ${`%${query}%`} OR
-	customers.email ILIKE ${`%${query}%`} OR
-	invoices.amount::text ILIKE ${`%${query}%`} OR
-	invoices.date::text ILIKE ${`%${query}%`} OR
-	invoices.status ILIKE ${`%${query}%`}
-      ORDER BY invoices.date DESC
-      LIMIT ${ITEMS_PER_PAGE} OFFSET ${offset}
-    `
-*/
+      .from('v_invoiceswithcustomers')
+      .select('*')
+      .or(`name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`) 
+      .order('date', { ascending: false })
+    .limit(ITEMS_PER_PAGE)
+    .range(rangeStart, rangeEnd)
     console.log(`Invoice data: ${JSON.stringify(invoices, null, 2)}`)
     return invoices
   } catch (error) {
