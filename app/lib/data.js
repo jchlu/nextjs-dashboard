@@ -73,7 +73,7 @@ const ITEMS_PER_PAGE = 6
 export async function fetchFilteredInvoices(query, currentPage) {
   const rangeStart = (currentPage - 1) * ITEMS_PER_PAGE
   const rangeEnd = rangeStart + ITEMS_PER_PAGE
-  console.log(`rangeStart: ${rangeStart}, rangeEnd: ${rangeEnd}`)
+  // console.log(`rangeStart: ${rangeStart}, rangeEnd: ${rangeEnd}`)
   try {
     let { data: invoices, error } = await supabase
       .from('v_invoiceswithcustomers')
@@ -82,28 +82,22 @@ export async function fetchFilteredInvoices(query, currentPage) {
       .order('date', { ascending: false })
     .limit(ITEMS_PER_PAGE)
     .range(rangeStart, rangeEnd)
-    console.log(`Invoice data: ${JSON.stringify(invoices, null, 2)}`)
+    // console.log(`Invoice data: ${JSON.stringify(invoices, null, 2)}`)
     return invoices
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch invoices.')
   }
 }
-/*
 export async function fetchInvoicesPages(query) {
   try {
-    const count = await sql`SELECT COUNT(*)
-    FROM invoices
-    JOIN customers ON invoices.customer_id = customers.id
-    WHERE
-      customers.name ILIKE ${`%${query}%`} OR
-      customers.email ILIKE ${`%${query}%`} OR
-      invoices.amount::text ILIKE ${`%${query}%`} OR
-      invoices.date::text ILIKE ${`%${query}%`} OR
-      invoices.status ILIKE ${`%${query}%`}
-  `
+    let { count, error } = await supabase
+      .from('v_invoiceswithcustomers')
+      .select('*', { count: 'exact', head: true })
+      .or(`name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`) 
 
-    const totalPages = Math.ceil(Number(count.rows[0].count) / ITEMS_PER_PAGE)
+    // console.table(count)
+    const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE)
     return totalPages
   } catch (error) {
     console.error('Database Error:', error)
@@ -111,6 +105,7 @@ export async function fetchInvoicesPages(query) {
   }
 }
 
+/*
 export async function fetchInvoiceById(id) {
   try {
     const data = await sql`
