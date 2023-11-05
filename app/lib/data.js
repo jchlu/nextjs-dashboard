@@ -72,7 +72,7 @@ export async function fetchCardData() {
 const ITEMS_PER_PAGE = 6
 export async function fetchFilteredInvoices(query, currentPage) {
   const rangeStart = (currentPage - 1) * ITEMS_PER_PAGE
-  const rangeEnd = rangeStart + ITEMS_PER_PAGE
+  const rangeEnd = rangeStart + (ITEMS_PER_PAGE - 1)
   // console.log(`rangeStart: ${rangeStart}, rangeEnd: ${rangeEnd}`)
   try {
     let { data: invoices, error } = await supabase
@@ -82,7 +82,7 @@ export async function fetchFilteredInvoices(query, currentPage) {
       .order('date', { ascending: false })
     .limit(ITEMS_PER_PAGE)
     .range(rangeStart, rangeEnd)
-    // console.log(`Invoice data: ${JSON.stringify(invoices, null, 2)}`)
+    // console.log(`Invoice data: ${invoices.length}`)
     return invoices
   } catch (error) {
     console.error('Database Error:', error)
