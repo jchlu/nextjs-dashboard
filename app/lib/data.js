@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Create a single supabase client for interacting with your database
-const supabase = createClient(
+export const supabase = createClient(
   process.env.SUPABASE_URL,
   process.env.SUPABASE_ANON_KEY
 )
@@ -130,10 +130,16 @@ export async function fetchInvoiceById(id) {
     throw new Error('Failed to fetch invoice.')
   }
 }
-
+*/
 export async function fetchCustomers() {
   try {
-    const data = await sql<CustomerField>`
+    
+let { data: customers, error } = await supabase
+  .from('customers')
+  .select('id,name')
+  .order('name')
+
+    /* const data = await sql<CustomerField>`
       SELECT
 	id,
 	name
@@ -141,14 +147,14 @@ export async function fetchCustomers() {
       ORDER BY name ASC
     `
 
-    const customers = data.rows
+    const customers = data.rows */
     return customers
   } catch (err) {
     console.error('Database Error:', err)
     throw new Error('Failed to fetch all customers.')
   }
 }
-
+/*
 export async function fetchFilteredCustomers(query) {
   try {
     const data = await sql<CustomersTable>`
