@@ -30,3 +30,29 @@ export async function createInvoice(formData) {
   revalidatePath('/dashboard/invoices')
   redirect('/dashboard/invoices')
 }
+
+// Use Zod to update the expected types
+const UpdateInvoice = InvoiceSchema.omit({ date: true })
+
+// ...
+
+export async function updateInvoice(id, formData) {
+  const { customer_id, amount, status } = UpdateInvoice.parse({
+    id,
+    customer_id: formData.get('customerId'),
+    amount: formData.get('amount'),
+    status: formData.get('status'),
+  })
+
+  const amountInCents = amount* 100
+  const updateData = { customer_id, amount: amountInCents, status }
+
+  const { data, error } = await supabase
+    .from('invoices')
+    .update(updateData)
+    .eq('id', id)
+    .select()
+    
+  revalidatePath('/dashboard/invoices')
+  redirect('/dashboard/invoices')
+}

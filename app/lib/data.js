@@ -105,32 +105,25 @@ export async function fetchInvoicesPages(query) {
   }
 }
 
-/*
 export async function fetchInvoiceById(id) {
   try {
-    const data = await sql`
-      SELECT
-	invoices.id,
-	invoices.customer_id,
-	invoices.amount,
-	invoices.status
-      FROM invoices
-      WHERE invoices.id = ${id};
-    `
+    const { data } = await supabase
+    .from('invoices')
+    .select('id,customer_id,amount,status')
+      .eq('id', id)
 
-    const invoice = data.rows.map((invoice) => ({
-      ...invoice,
+    const invoice = {
+      ...data[0],
       // Convert amount from cents to dollars
-      amount: invoice.amount / 100,
-    }))
-
-    return invoice[0]
+      amount: data[0].amount / 100,
+    }
+    return invoice
   } catch (error) {
     console.error('Database Error:', error)
     throw new Error('Failed to fetch invoice.')
   }
 }
-*/
+
 export async function fetchCustomers() {
   try {
     
@@ -139,15 +132,6 @@ let { data: customers, error } = await supabase
   .select('id,name')
   .order('name')
 
-    /* const data = await sql<CustomerField>`
-      SELECT
-	id,
-	name
-      FROM customers
-      ORDER BY name ASC
-    `
-
-    const customers = data.rows */
     return customers
   } catch (err) {
     console.error('Database Error:', err)
