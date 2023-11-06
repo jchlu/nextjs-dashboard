@@ -22,11 +22,18 @@ export async function createInvoice(formData) {
   })
   const amountInCents = amount * 100
   const date = new Date().toISOString().split('T')[0]
-  const insertData = { customer_id, amount: amountInCents, status, date }
-  const { data, error } = await supabase
-    .from('invoices')
-    .insert([insertData])
-    .select()
+
+  try {
+    const insertData = { customer_id, amount: amountInCents, status, date }
+    const { data, error } = await supabase
+      .from('invoices')
+      .insert([insertData])
+      .select()
+  } catch (error) {
+    console.error('Database Error:', error)
+    return { message: 'Failed to insert the new invoice.' }
+  }
+
   revalidatePath('/dashboard/invoices')
   redirect('/dashboard/invoices')
 }
@@ -47,11 +54,17 @@ export async function updateInvoice(id, formData) {
   const amountInCents = amount* 100
   const updateData = { customer_id, amount: amountInCents, status }
 
-  const { data, error } = await supabase
-    .from('invoices')
-    .update(updateData)
-    .eq('id', id)
-    .select()
+  try {
+    const { data, error } = await supabase
+      .from('invoices')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+  } catch (error) {
+    console.error('Database Error:', error)
+    return { message: 'Failed to update the invoice.' }
+  }
+
     
   revalidatePath('/dashboard/invoices')
   redirect('/dashboard/invoices')
@@ -60,10 +73,15 @@ export async function updateInvoice(id, formData) {
 
 export async function deleteInvoice(id) {
 
-const { error } = await supabase
-  .from('invoices')
-  .delete()
-  .eq('id', id)
+ try {
+    const { error } = await supabase
+      .from('invoices')
+      .delete()
+      .eq('id', id)
+  } catch (error) {
+    console.error('Database Error:', error)
+    return { message: 'Failed to delete the invoice.' }
+  }
 
   revalidatePath('/dashboard/invoices')
 }
