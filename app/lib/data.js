@@ -6,6 +6,7 @@ export const supabase = createClient(
   process.env.SUPABASE_ANON_KEY
 )
 import { formatCurrency } from './utils'
+import { unstable_noStore as noStore } from 'next/cache'
 // import { invoices } from './placeholder-data'
 
 export async function fetchRevenue() {
@@ -78,10 +79,12 @@ export async function fetchFilteredInvoices(query, currentPage) {
     let { data: invoices, error } = await supabase
       .from('v_invoiceswithcustomers')
       .select('*')
-      .or(`name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`) 
+      .or(
+        `name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`
+      )
       .order('date', { ascending: false })
-    .limit(ITEMS_PER_PAGE)
-    .range(rangeStart, rangeEnd)
+      .limit(ITEMS_PER_PAGE)
+      .range(rangeStart, rangeEnd)
     // console.log(`Invoice data: ${invoices.length}`)
     return invoices
   } catch (error) {
@@ -94,7 +97,9 @@ export async function fetchInvoicesPages(query) {
     let { count, error } = await supabase
       .from('v_invoiceswithcustomers')
       .select('*', { count: 'exact', head: true })
-      .or(`name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`) 
+      .or(
+        `name.ilike.%${query}%,email.ilike.%${query}%,amount.ilike.%${query}%,date.ilike.%${query}%,status.ilike.%${query}%`
+      )
 
     // console.table(count)
     const totalPages = Math.ceil(Number(count) / ITEMS_PER_PAGE)
@@ -106,12 +111,15 @@ export async function fetchInvoicesPages(query) {
 }
 
 export async function fetchInvoiceById(id) {
+  noStore()
   try {
     const { data } = await supabase
-    .from('invoices')
-    .select('id,customer_id,amount,status')
+      .from('invoices')
+      .select('id,customer_id,amount,status')
       .eq('id', id)
-
+    if (!data) {
+      return
+    }
     const invoice = {
       ...data[0],
       // Convert amount from cents to dollars
@@ -126,11 +134,10 @@ export async function fetchInvoiceById(id) {
 
 export async function fetchCustomers() {
   try {
-    
-let { data: customers, error } = await supabase
-  .from('customers')
-  .select('id,name')
-  .order('name')
+    let { data: customers, error } = await supabase
+      .from('customers')
+      .select('id,name')
+      .order('name')
 
     return customers
   } catch (err) {

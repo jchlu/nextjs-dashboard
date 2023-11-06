@@ -51,7 +51,7 @@ export async function updateInvoice(id, formData) {
     status: formData.get('status'),
   })
 
-  const amountInCents = amount* 100
+  const amountInCents = amount * 100
   const updateData = { customer_id, amount: amountInCents, status }
 
   try {
@@ -65,19 +65,13 @@ export async function updateInvoice(id, formData) {
     return { message: 'Failed to update the invoice.' }
   }
 
-    
   revalidatePath('/dashboard/invoices')
   redirect('/dashboard/invoices')
 }
 
-
 export async function deleteInvoice(id) {
-
- try {
-    const { error } = await supabase
-      .from('invoices')
-      .delete()
-      .eq('id', id)
+  try {
+    const { error } = await supabase.from('invoices').delete().eq('id', id)
   } catch (error) {
     console.error('Database Error:', error)
     return { message: 'Failed to delete the invoice.' }
