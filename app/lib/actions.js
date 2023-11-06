@@ -56,3 +56,14 @@ export async function updateInvoice(id, formData) {
   revalidatePath('/dashboard/invoices')
   redirect('/dashboard/invoices')
 }
+
+
+export async function deleteInvoice(id) {
+
+const { error } = await supabase
+  .from('invoices')
+  .delete()
+  .eq('id', id)
+
+  revalidatePath('/dashboard/invoices')
+}
