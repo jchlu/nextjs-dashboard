@@ -3,7 +3,18 @@ import { z } from 'zod'
 import { supabase } from '@/app/lib/data'
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { signIn } from '@/auth'
 
+export async function authenticate(prevState, formData) {
+  try {
+    await signIn('credentials', Object.fromEntries(formData))
+  } catch (error) {
+    if (error.message.includes('CredentialsSignin')) {
+      return 'CredentialSignin'
+    }
+    throw error
+  }
+}
 const InvoiceSchema = z.object({
   id: z.string(),
   customer_id: z.string({
