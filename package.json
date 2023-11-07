@@ -8,7 +8,6 @@
     "pretty": "prettier app/ -w"
   },
   "dependencies": {
-    "@clerk/nextjs": "^4.26.2",
     "@heroicons/react": "^2.0.18",
     "@supabase/supabase-js": "^2.38.4",
     "@tailwindcss/forms": "^0.5.6",
