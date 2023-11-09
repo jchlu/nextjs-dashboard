@@ -1,6 +1,6 @@
 import '@/app/ui/global.css'
 import { geist } from './ui/fonts'
- 
+
 export const metadata = {
   title: {
     template: '%s | Acme Dashboard',
